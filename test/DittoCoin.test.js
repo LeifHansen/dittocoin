@@ -8,7 +8,7 @@ describe("DittoCoin", function () {
   let addr1;
   let addr2;
 
-  const INITIAL_SUPPLY = ethers.parseEther("100000000000"); // 100 billion
+  const INITIAL_SUPPLY = ethers.parseEther("420000000000"); // 420 billion
 
   beforeEach(async function () {
     [owner, treasury, addr1, addr2] = await ethers.getSigners();
@@ -29,7 +29,7 @@ describe("DittoCoin", function () {
       expect(await dittoCoin.balanceOf(owner.address)).to.equal(INITIAL_SUPPLY);
     });
 
-    it("should set total supply to 100 billion", async function () {
+    it("should set total supply to 420 billion", async function () {
       expect(await dittoCoin.totalSupply()).to.equal(INITIAL_SUPPLY);
     });
 
@@ -73,18 +73,23 @@ describe("DittoCoin", function () {
 
   // ── Taxed transfers ───────────────────────────────────────
 
-  describe("Taxed transfers (2% burn + 1% treasury)", function () {
+  describe("Halving burn + 1% treasury", function () {
     const seedAmount = ethers.parseEther("1000000"); // 1M to addr1
 
     beforeEach(async function () {
-      // Owner is exempt, so this is a clean transfer
       await dittoCoin.transfer(addr1.address, seedAmount);
     });
 
-    it("should burn 2% and send 1% to treasury on non-exempt transfer", async function () {
-      const sendAmount = ethers.parseEther("10000"); // 10k
-      const expectedBurn = (sendAmount * 200n) / 10000n;     // 200 tokens
-      const expectedTreasury = (sendAmount * 100n) / 10000n; // 100 tokens
+    it("should start at era 0 with 2% burn rate", async function () {
+      expect(await dittoCoin.currentEra()).to.equal(0);
+      expect(await dittoCoin.currentBurnBps()).to.equal(200);
+    });
+
+    it("should burn 2% and send 1% to treasury in era 0", async function () {
+      const sendAmount = ethers.parseEther("10000");
+      const burnBps = await dittoCoin.currentBurnBps();
+      const expectedBurn = (sendAmount * burnBps) / 10000n;
+      const expectedTreasury = (sendAmount * 100n) / 10000n;
       const expectedReceived = sendAmount - expectedBurn - expectedTreasury;
 
       const supplyBefore = await dittoCoin.totalSupply();
@@ -99,6 +104,45 @@ describe("DittoCoin", function () {
       );
     });
 
+    it("should halve burn rate after 180 days (era 1 = 1%)", async function () {
+      // Fast-forward 181 days
+      await ethers.provider.send("evm_increaseTime", [181 * 86400]);
+      await ethers.provider.send("evm_mine");
+
+      expect(await dittoCoin.currentEra()).to.equal(1);
+      expect(await dittoCoin.currentBurnBps()).to.equal(100); // 1%
+    });
+
+    it("should halve again after 360 days (era 2 = 0.5%)", async function () {
+      await ethers.provider.send("evm_increaseTime", [361 * 86400]);
+      await ethers.provider.send("evm_mine");
+
+      expect(await dittoCoin.currentEra()).to.equal(2);
+      expect(await dittoCoin.currentBurnBps()).to.equal(50); // 0.5%
+    });
+
+    it("should floor at 1 bps (0.01%) after era 7+", async function () {
+      // Fast-forward 8 eras worth (1440 days = ~4 years)
+      await ethers.provider.send("evm_increaseTime", [1440 * 86400]);
+      await ethers.provider.send("evm_mine");
+
+      expect(await dittoCoin.currentBurnBps()).to.equal(1); // 0.01% floor
+    });
+
+    it("should apply reduced burn rate in later eras", async function () {
+      // Jump to era 1 (1% burn)
+      await ethers.provider.send("evm_increaseTime", [181 * 86400]);
+      await ethers.provider.send("evm_mine");
+
+      const sendAmount = ethers.parseEther("10000");
+      const expectedBurn = (sendAmount * 100n) / 10000n;  // 1% = 100 bps
+      const expectedTreasury = (sendAmount * 100n) / 10000n;
+      const expectedReceived = sendAmount - expectedBurn - expectedTreasury;
+
+      await dittoCoin.connect(addr1).transfer(addr2.address, sendAmount);
+      expect(await dittoCoin.balanceOf(addr2.address)).to.equal(expectedReceived);
+    });
+
     it("should report correct totalBurned", async function () {
       const sendAmount = ethers.parseEther("10000");
       await dittoCoin.connect(addr1).transfer(addr2.address, sendAmount);
@@ -106,16 +150,22 @@ describe("DittoCoin", function () {
       const expectedBurn = (sendAmount * 200n) / 10000n;
       expect(await dittoCoin.totalBurned()).to.equal(expectedBurn);
     });
+
+    it("should report timeUntilNextHalving", async function () {
+      const timeLeft = await dittoCoin.timeUntilNextHalving();
+      expect(timeLeft).to.be.greaterThan(0);
+      expect(timeLeft).to.be.lessThanOrEqual(180 * 86400);
+    });
   });
 
   // ── Anti-whale ────────────────────────────────────────────
 
   describe("Anti-whale limits", function () {
     it("should reject transfers exceeding max tx size", async function () {
-      // Max tx = 0.5% of 100B = 500M
-      const tooMuch = ethers.parseEther("600000000"); // 600M
+      // Max tx = 0.5% of 420B = 2.1B tokens
+      const tooMuch = ethers.parseEther("2200000000"); // 2.2B > 2.1B limit
       // First give addr1 enough tokens (owner is exempt from limits)
-      await dittoCoin.transfer(addr1.address, ethers.parseEther("900000000"));
+      await dittoCoin.transfer(addr1.address, ethers.parseEther("3000000000"));
 
       await expect(
         dittoCoin.connect(addr1).transfer(addr2.address, tooMuch)
@@ -123,15 +173,16 @@ describe("DittoCoin", function () {
     });
 
     it("should reject if recipient would exceed max wallet", async function () {
-      // Max wallet = 1% of 100B = 1B
-      // Each 500M tx nets 485M after 3% fee. Two = 970M. Third would push over 1B.
-      const chunk = ethers.parseEther("500000000"); // 500M each (at max tx limit)
-      await dittoCoin.transfer(addr1.address, ethers.parseEther("2000000000"));
+      // Max wallet = 1% of 420B = 4.2B tokens
+      // Send large chunks to addr2 via addr1 (non-exempt, so fees apply)
+      // Each 2B tx nets ~1.94B after 3% fee
+      const chunk = ethers.parseEther("2000000000"); // 2B per tx (under 2.1B max tx)
+      await dittoCoin.transfer(addr1.address, ethers.parseEther("10000000000"));
 
-      await dittoCoin.connect(addr1).transfer(addr2.address, chunk); // addr2 gets ~485M
-      await dittoCoin.connect(addr1).transfer(addr2.address, chunk); // addr2 gets ~970M
+      await dittoCoin.connect(addr1).transfer(addr2.address, chunk); // addr2 gets ~1.94B
+      await dittoCoin.connect(addr1).transfer(addr2.address, chunk); // addr2 gets ~3.88B
 
-      // Third chunk: 970M + 485M net = ~1.455B > 1B limit
+      // Third chunk: 3.88B + 1.94B net = ~5.82B > 4.2B limit
       await expect(
         dittoCoin.connect(addr1).transfer(addr2.address, chunk)
       ).to.be.revertedWith("Exceeds max wallet");
@@ -154,15 +205,32 @@ describe("DittoCoin", function () {
       expect(await dittoCoin.isExempt(treasury.address)).to.be.false;
     });
 
-    it("should allow owner to update fees", async function () {
-      await dittoCoin.setFees(100, 50); // 1% burn, 0.5% treasury
-      expect(await dittoCoin.burnFeeBps()).to.equal(100);
+    it("should allow owner to update treasury fee", async function () {
+      await dittoCoin.setTreasuryFee(50); // 0.5% treasury
       expect(await dittoCoin.treasuryFeeBps()).to.equal(50);
     });
 
-    it("should reject fees exceeding 10%", async function () {
-      await expect(dittoCoin.setFees(800, 300)).to.be.revertedWith(
-        "Total fees cannot exceed 10%"
+    it("should reject treasury fee exceeding 5%", async function () {
+      await expect(dittoCoin.setTreasuryFee(600)).to.be.revertedWith(
+        "Treasury fee cannot exceed 5%"
+      );
+    });
+
+    it("should allow owner to update limits", async function () {
+      await dittoCoin.setLimits(200, 100); // 2% wallet, 1% tx
+      expect(await dittoCoin.maxWalletBps()).to.equal(200);
+      expect(await dittoCoin.maxTxBps()).to.equal(100);
+    });
+
+    it("should reject max wallet below 0.5%", async function () {
+      await expect(dittoCoin.setLimits(40, 50)).to.be.revertedWith(
+        "Max wallet must be >= 0.5%"
+      );
+    });
+
+    it("should reject max tx below 0.1%", async function () {
+      await expect(dittoCoin.setLimits(100, 5)).to.be.revertedWith(
+        "Max tx must be >= 0.1%"
       );
     });
 
@@ -172,15 +240,20 @@ describe("DittoCoin", function () {
       expect(await dittoCoin.maxTxBps()).to.equal(10000);
     });
 
-    it("should allow owner to remove fees", async function () {
-      await dittoCoin.removeFees();
-      expect(await dittoCoin.burnFeeBps()).to.equal(0);
+    it("should allow owner to remove treasury fee", async function () {
+      await dittoCoin.removeTreasuryFee();
       expect(await dittoCoin.treasuryFeeBps()).to.equal(0);
     });
 
-    it("should reject non-owner from changing fees", async function () {
+    it("should reject non-owner from changing treasury fee", async function () {
       await expect(
-        dittoCoin.connect(addr1).setFees(100, 50)
+        dittoCoin.connect(addr1).setTreasuryFee(50)
+      ).to.be.reverted;
+    });
+
+    it("should reject non-owner from changing limits", async function () {
+      await expect(
+        dittoCoin.connect(addr1).setLimits(200, 100)
       ).to.be.reverted;
     });
   });
@@ -202,6 +275,35 @@ describe("DittoCoin", function () {
 
     it("should reject non-owner from pausing", async function () {
       await expect(dittoCoin.connect(addr1).pause()).to.be.reverted;
+    });
+  });
+
+  // ── Public burn function ─────────────────────────────────────
+
+  describe("Public burn function", function () {
+    it("should allow any holder to burn their own tokens", async function () {
+      const amount = ethers.parseEther("1000000");
+      await dittoCoin.transfer(addr1.address, amount); // exempt, no fees
+
+      const supplyBefore = await dittoCoin.totalSupply();
+      await dittoCoin.connect(addr1).burn(ethers.parseEther("500000"));
+      const supplyAfter = await dittoCoin.totalSupply();
+
+      expect(supplyAfter).to.equal(supplyBefore - ethers.parseEther("500000"));
+      expect(await dittoCoin.balanceOf(addr1.address)).to.equal(ethers.parseEther("500000"));
+    });
+
+    it("should revert if burning more than balance", async function () {
+      await dittoCoin.transfer(addr1.address, ethers.parseEther("1000"));
+      await expect(
+        dittoCoin.connect(addr1).burn(ethers.parseEther("2000"))
+      ).to.be.reverted;
+    });
+
+    it("should update totalBurned correctly", async function () {
+      const burnAmount = ethers.parseEther("1000000");
+      await dittoCoin.burn(burnAmount);
+      expect(await dittoCoin.totalBurned()).to.equal(burnAmount);
     });
   });
 });

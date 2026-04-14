@@ -10,7 +10,7 @@ describe("DittoStaking", function () {
   let staker1;
   let staker2;
 
-  const INITIAL_SUPPLY = ethers.parseEther("100000000000");
+  const INITIAL_SUPPLY = ethers.parseEther("420000000000"); // 420 billion
   const REWARD_POOL = ethers.parseEther("5000000000"); // 5B for rewards
   const STAKE_AMOUNT = ethers.parseEther("1000000");   // 1M per stake
 

@@ -45,6 +45,20 @@ export const VAULT_ASSETS = [
   { symbol: "DAI", address: "0x0000000000000000000000000000000000000000", decimals: 18, icon: "◈" },
 ] as const;
 
+// ─── Address Helpers ─────────────────────────────────────────
+const ZERO_ADDR = "0x0000000000000000000000000000000000000000";
+
+/** Returns true if the contract address is deployed (non-zero). */
+export function isDeployed(address: string | undefined): boolean {
+  return !!address && address !== ZERO_ADDR;
+}
+
+/** Returns the contract addresses for the current chain, or sepolia as fallback. */
+export function getContracts(chainId: number | undefined) {
+  if (chainId === 1) return CONTRACTS.mainnet;
+  return CONTRACTS.sepolia; // Default to testnet
+}
+
 // Staking tiers
 export const STAKING_TIERS = [
   { id: 0, name: "Paper Hands", emoji: "\u{1F9FB}", lock: "7 days", lockSeconds: 604800, mult: "1x", apr: 10, color: "from-gray-400 to-gray-500" },

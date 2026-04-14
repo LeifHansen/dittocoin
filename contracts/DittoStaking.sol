@@ -59,6 +59,7 @@ contract DittoStaking is Ownable2Step, ReentrancyGuard, Pausable {
     uint256 public rewardPool;
     uint256 public minStakeAmount = 1000 * 10 ** 18; // 1000 DITTO minimum
     uint256 public constant MAX_STAKES_PER_USER = 50;
+    uint256 private constant REWARD_DENOMINATOR = 365 days * 10_000 * 100;
 
     // ── Events ──────────────────────────────────────────────────
 
@@ -66,6 +67,7 @@ contract DittoStaking is Ownable2Step, ReentrancyGuard, Pausable {
     event Unstaked(address indexed user, uint256 indexed stakeIndex, uint256 principal, uint256 reward);
     event EmergencyUnstaked(address indexed user, uint256 indexed stakeIndex, uint256 amount);
     event RewardPoolFunded(address indexed funder, uint256 amount);
+    event RewardCapped(address indexed user, uint256 indexed stakeIndex, uint256 calculatedReward, uint256 actualReward);
     event BaseAprUpdated(uint256 newAprBps);
 
     constructor(address _dittoToken) Ownable(msg.sender) {
@@ -125,8 +127,9 @@ contract DittoStaking is Ownable2Step, ReentrancyGuard, Pausable {
         s.withdrawn = true;
         totalStaked -= s.amount;
 
-        // Cap reward to available pool
+        // Cap reward to available pool (emit event for transparency)
         if (reward > rewardPool) {
+            emit RewardCapped(msg.sender, stakeIndex, reward, rewardPool);
             reward = rewardPool;
         }
         rewardPool -= reward;
@@ -166,8 +169,8 @@ contract DittoStaking is Ownable2Step, ReentrancyGuard, Pausable {
         uint256 elapsed = block.timestamp - s.startTime;
         uint256 multiplier = tiers[s.tier].multiplier;
 
-        // amount * aprBps * multiplier * elapsed / (365 days * 10000 * 100)
-        uint256 reward = (s.amount * baseAprBps * multiplier * elapsed) / (365 days * 10_000 * 100);
+        // amount * aprBps * multiplier * elapsed / REWARD_DENOMINATOR
+        uint256 reward = (s.amount * baseAprBps * multiplier * elapsed) / REWARD_DENOMINATOR;
         return reward;
     }
 

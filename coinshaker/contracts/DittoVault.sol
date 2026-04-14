@@ -94,6 +94,7 @@ contract DittoVault is Ownable2Step, Pausable, ReentrancyGuard {
     event AssetRemoved(address indexed asset);
     event Deposited(address indexed user, uint256 indexed depositIndex, address asset, uint256 amount, uint256 usdValue, Tier tier);
     event Withdrawn(address indexed user, uint256 indexed depositIndex, uint256 reward);
+    event RewardCapped(address indexed user, uint256 indexed depositIndex, uint256 calculatedReward, uint256 actualReward);
     event EmergencyWithdrawn(address indexed user, uint256 indexed depositIndex);
     event RewardPoolFunded(address indexed funder, uint256 amount);
     event BaseAprUpdated(uint256 newAprBps);
@@ -132,11 +133,15 @@ contract DittoVault is Ownable2Step, Pausable, ReentrancyGuard {
     }
 
     /**
-     * @notice Remove an asset from supported list (existing deposits unaffected).
+     * @notice Remove an asset from supported list.
+     *         Existing deposits can still be withdrawn (asset config preserved).
+     *         New deposits are blocked since supported = false.
      */
     function removeAsset(address asset) external onlyOwner {
         require(assets[asset].supported, "Not supported");
         assets[asset].supported = false;
+        // Note: AssetConfig (priceFeed, decimals) is intentionally preserved
+        // so existing deposits can still calculate rewards and withdraw.
 
         // Remove from supportedAssets array to keep enumeration clean
         for (uint256 i = 0; i < supportedAssets.length; i++) {
@@ -225,8 +230,9 @@ contract DittoVault is Ownable2Step, Pausable, ReentrancyGuard {
         d.withdrawn = true;
         totalValueLocked -= d.usdValue;
 
-        // Cap reward to available pool
+        // Cap reward to available pool (emit event for transparency)
         if (reward > rewardPool) {
+            emit RewardCapped(msg.sender, depositIndex, reward, rewardPool);
             reward = rewardPool;
         }
         rewardPool -= reward;
@@ -295,7 +301,8 @@ contract DittoVault is Ownable2Step, Pausable, ReentrancyGuard {
      */
     function _getUSDValue(address asset, uint256 amount) internal view returns (uint256) {
         AssetConfig storage cfg = assets[asset];
-        require(cfg.supported, "Asset not supported");
+        // Allow both supported and formerly-supported assets (config preserved after removal)
+        require(address(cfg.priceFeed) != address(0), "Asset not configured");
 
         (
             ,
@@ -305,6 +312,8 @@ contract DittoVault is Ownable2Step, Pausable, ReentrancyGuard {
         ) = cfg.priceFeed.latestRoundData();
 
         require(price > 0, "Invalid price");
+        require(updatedAt > 0, "Price feed not initialized");
+        require(updatedAt <= block.timestamp, "Price feed timestamp in future");
         require(block.timestamp - updatedAt <= maxStaleness, "Stale price data");
 
         uint8 feedDecimals = cfg.priceFeed.decimals();

@@ -3,13 +3,19 @@
 export const CONTRACTS = {
   // Sepolia testnet (update after deploy)
   sepolia: {
-    dittoCoin: "0x0000000000000000000000000000000000000000" as `0x${string}`,
-    dittoStaking: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+    dittoCoin: "0xE85644Ab000b8741837746335819F0AE750e1Fd6" as `0x${string}`,
+    dittoStaking: "0x8F293C24E81FeF1f0aE3c381CBd6AD78236b810c" as `0x${string}`,
+    dittoPresale: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+    dittoVesting: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+    dittoVault: "0x0000000000000000000000000000000000000000" as `0x${string}`,
   },
   // Mainnet (update after deploy)
   mainnet: {
     dittoCoin: "0x0000000000000000000000000000000000000000" as `0x${string}`,
     dittoStaking: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+    dittoPresale: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+    dittoVesting: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+    dittoVault: "0x0000000000000000000000000000000000000000" as `0x${string}`,
   },
 } as const;
 
@@ -21,8 +27,37 @@ export const TOKEN = {
   name: "DittoCoin",
   symbol: "DITTO",
   decimals: 18,
-  initialSupply: "100000000000", // 100 billion
+  initialSupply: "420000000000", // 420 billion
 } as const;
+
+// Presale rounds
+export const PRESALE_ROUNDS = [
+  { id: 0, name: "Seed", discount: "60%", tgePercent: 25, vestingDays: 90, whitelisted: true },
+  { id: 1, name: "Early Bird", discount: "40%", tgePercent: 50, vestingDays: 60, whitelisted: false },
+  { id: 2, name: "Public", discount: "20%", tgePercent: 100, vestingDays: 0, whitelisted: false },
+] as const;
+
+// Vault supported assets (addresses updated after deploy)
+export const VAULT_ASSETS = [
+  { symbol: "ETH", address: "0x0000000000000000000000000000000000000000", decimals: 18, icon: "⟠" },
+  { symbol: "USDC", address: "0x0000000000000000000000000000000000000000", decimals: 6, icon: "💵" },
+  { symbol: "USDT", address: "0x0000000000000000000000000000000000000000", decimals: 6, icon: "💲" },
+  { symbol: "DAI", address: "0x0000000000000000000000000000000000000000", decimals: 18, icon: "◈" },
+] as const;
+
+// ─── Address Helpers ─────────────────────────────────────────
+const ZERO_ADDR = "0x0000000000000000000000000000000000000000";
+
+/** Returns true if the contract address is deployed (non-zero). */
+export function isDeployed(address: string | undefined): boolean {
+  return !!address && address !== ZERO_ADDR;
+}
+
+/** Returns the contract addresses for the current chain, or sepolia as fallback. */
+export function getContracts(chainId: number | undefined) {
+  if (chainId === 1) return CONTRACTS.mainnet;
+  return CONTRACTS.sepolia; // Default to testnet
+}
 
 // Staking tiers
 export const STAKING_TIERS = [

@@ -110,7 +110,9 @@ contract DittoVesting is Ownable2Step, ReentrancyGuard {
             s.vestingDuration = vestingDuration;
             emit ScheduleRegistered(beneficiary, amount, tgePercent, vestingDuration);
         } else {
-            // Add to existing (same terms assumed — presale registers per-round)
+            // Add to existing — validate terms match to prevent silent corruption
+            require(s.tgePercent == tgePercent, "TGE percent mismatch");
+            require(s.vestingDuration == vestingDuration, "Vesting duration mismatch");
             s.totalAmount += amount;
             emit ScheduleIncreased(beneficiary, amount, s.totalAmount);
         }
@@ -134,6 +136,8 @@ contract DittoVesting is Ownable2Step, ReentrancyGuard {
                 s.vestingDuration = vestingDuration;
                 emit ScheduleRegistered(beneficiaries[i], amounts[i], tgePercent, vestingDuration);
             } else {
+                require(s.tgePercent == tgePercent, "TGE percent mismatch");
+                require(s.vestingDuration == vestingDuration, "Vesting duration mismatch");
                 s.totalAmount += amounts[i];
                 emit ScheduleIncreased(beneficiaries[i], amounts[i], s.totalAmount);
             }

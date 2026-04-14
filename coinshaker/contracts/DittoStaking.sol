@@ -67,6 +67,7 @@ contract DittoStaking is Ownable2Step, ReentrancyGuard, Pausable {
     event Unstaked(address indexed user, uint256 indexed stakeIndex, uint256 principal, uint256 reward);
     event EmergencyUnstaked(address indexed user, uint256 indexed stakeIndex, uint256 amount);
     event RewardPoolFunded(address indexed funder, uint256 amount);
+    event RewardCapped(address indexed user, uint256 indexed stakeIndex, uint256 calculatedReward, uint256 actualReward);
     event BaseAprUpdated(uint256 newAprBps);
 
     constructor(address _dittoToken) Ownable(msg.sender) {
@@ -126,8 +127,9 @@ contract DittoStaking is Ownable2Step, ReentrancyGuard, Pausable {
         s.withdrawn = true;
         totalStaked -= s.amount;
 
-        // Cap reward to available pool
+        // Cap reward to available pool (emit event for transparency)
         if (reward > rewardPool) {
+            emit RewardCapped(msg.sender, stakeIndex, reward, rewardPool);
             reward = rewardPool;
         }
         rewardPool -= reward;

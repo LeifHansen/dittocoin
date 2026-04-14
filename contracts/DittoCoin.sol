@@ -9,17 +9,24 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
  * @title DittoCoin (DITTO)
  * @notice A community-driven memecoin on Ethereum with built-in tokenomics:
  *
- *   - 2% burn on every transfer   → deflationary supply
+ *   - Halving burn: starts at 2%, halves every 180 days → deflationary supply
+ *     Era 0: 2% → Era 1: 1% → Era 2: 0.5% → Era 3: 0.25% → ...
+ *     Floor: 0.01% (1 bps) — burn never reaches zero, just gets smaller forever
  *   - 1% to community treasury    → self-funding growth
  *   - Anti-whale: max 1% of supply per wallet, 0.5% per tx
  *
- *   100 billion tokens minted at deploy. No mint function.
+ *   420 billion tokens minted at deploy. No mint function.
  */
 contract DittoCoin is ERC20, Ownable2Step, Pausable {
-    uint256 public constant INITIAL_SUPPLY = 100_000_000_000 * 10 ** 18;
+    uint256 public constant INITIAL_SUPPLY = 420_000_000_000 * 10 ** 18;
+
+    // ── Halving burn configuration ─────────────────────────────
+    uint256 public constant INITIAL_BURN_BPS = 200;      // 2% starting burn
+    uint256 public constant MIN_BURN_BPS = 1;             // 0.01% floor — never zero
+    uint256 public constant HALVING_INTERVAL = 180 days;  // ~6 months per era
+    uint256 public immutable deployTimestamp;
 
     // ── Fee configuration (basis points, 100 = 1%) ──────────────
-    uint256 public burnFeeBps = 200;      // 2%
     uint256 public treasuryFeeBps = 100;  // 1%
 
     // ── Anti-whale limits ───────────────────────────────────────
@@ -35,12 +42,13 @@ contract DittoCoin is ERC20, Ownable2Step, Pausable {
     // ── Events ──────────────────────────────────────────────────
     event TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury);
     event ExemptUpdated(address indexed account, bool exempt);
-    event FeesUpdated(uint256 burnFeeBps, uint256 treasuryFeeBps);
+    event FeesUpdated(uint256 treasuryFeeBps);
     event LimitsUpdated(uint256 maxWalletBps, uint256 maxTxBps);
 
     constructor(address _treasury) ERC20("DittoCoin", "DITTO") Ownable(msg.sender) {
         require(_treasury != address(0), "Treasury cannot be zero address");
         treasury = _treasury;
+        deployTimestamp = block.timestamp;
 
         // Exempt deployer and treasury from fees & limits
         isExempt[msg.sender] = true;
@@ -71,8 +79,9 @@ contract DittoCoin is ERC20, Ownable2Step, Pausable {
             uint256 maxTx = (INITIAL_SUPPLY * maxTxBps) / 10_000;
             require(amount <= maxTx, "Exceeds max transaction");
 
-            // Calculate fees
-            uint256 burnAmount = (amount * burnFeeBps) / 10_000;
+            // Calculate fees — burn rate halves each era
+            uint256 currentBurn = currentBurnBps();
+            uint256 burnAmount = (amount * currentBurn) / 10_000;
             uint256 treasuryAmount = (amount * treasuryFeeBps) / 10_000;
             uint256 transferAmount = amount - burnAmount - treasuryAmount;
 
@@ -108,11 +117,10 @@ contract DittoCoin is ERC20, Ownable2Step, Pausable {
         emit ExemptUpdated(account, exempt);
     }
 
-    function setFees(uint256 _burnFeeBps, uint256 _treasuryFeeBps) external onlyOwner {
-        require(_burnFeeBps + _treasuryFeeBps <= 1000, "Total fees cannot exceed 10%");
-        burnFeeBps = _burnFeeBps;
+    function setTreasuryFee(uint256 _treasuryFeeBps) external onlyOwner {
+        require(_treasuryFeeBps <= 500, "Treasury fee cannot exceed 5%");
         treasuryFeeBps = _treasuryFeeBps;
-        emit FeesUpdated(_burnFeeBps, _treasuryFeeBps);
+        emit FeesUpdated(_treasuryFeeBps);
     }
 
     function setLimits(uint256 _maxWalletBps, uint256 _maxTxBps) external onlyOwner {
@@ -130,11 +138,10 @@ contract DittoCoin is ERC20, Ownable2Step, Pausable {
         emit LimitsUpdated(10_000, 10_000);
     }
 
-    /// @notice Remove all fees — call this if community votes to go fee-free
-    function removeFees() external onlyOwner {
-        burnFeeBps = 0;
+    /// @notice Remove treasury fee — call this if community votes to go fee-free
+    function removeTreasuryFee() external onlyOwner {
         treasuryFeeBps = 0;
-        emit FeesUpdated(0, 0);
+        emit FeesUpdated(0);
     }
 
     // ── Pause mechanism ─────────────────────────────────────────
@@ -151,7 +158,42 @@ contract DittoCoin is ERC20, Ownable2Step, Pausable {
         _unpause();
     }
 
-    // ── View helpers ────────────────────────────────────────────
+    // ── Halving burn view helpers ───────────────────────────────
+
+    /// @notice Returns the current halving era (0 = first 180 days, 1 = next 180, etc.)
+    function currentEra() public view returns (uint256) {
+        return (block.timestamp - deployTimestamp) / HALVING_INTERVAL;
+    }
+
+    /// @notice Returns the current burn rate in basis points, accounting for halvings
+    ///         Era 0: 200 bps (2%), Era 1: 100 bps (1%), Era 2: 50 bps (0.5%), ...
+    ///         Floor: 1 bps (0.01%) — burn never reaches zero
+    function currentBurnBps() public view returns (uint256) {
+        uint256 era = currentEra();
+
+        // Cap era at 7 to prevent shifting below MIN_BURN_BPS
+        // (200 >> 7 = 1, which equals MIN_BURN_BPS)
+        if (era >= 7) return MIN_BURN_BPS;
+
+        uint256 rate = INITIAL_BURN_BPS >> era; // divide by 2^era
+        return rate < MIN_BURN_BPS ? MIN_BURN_BPS : rate;
+    }
+
+    /// @notice Returns seconds until the next halving
+    function timeUntilNextHalving() external view returns (uint256) {
+        uint256 nextHalvingTime = deployTimestamp + ((currentEra() + 1) * HALVING_INTERVAL);
+        if (block.timestamp >= nextHalvingTime) return 0;
+        return nextHalvingTime - block.timestamp;
+    }
+
+    // ── Burn helper ──────────────────────────────────────────────
+
+    /// @notice Burn tokens from the caller's balance (reduces totalSupply)
+    function burn(uint256 amount) external {
+        _burn(msg.sender, amount);
+    }
+
+    // ── Other view helpers ──────────────────────────────────────
 
     /// @notice Returns how many tokens have been burned so far
     function totalBurned() external view returns (uint256) {

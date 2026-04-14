@@ -129,7 +129,7 @@ export function BurnTracker() {
         <motion.div
           className="h-full rounded-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500"
           initial={{ width: 0 }}
-          animate={{ width: `${Math.min(supplyPct * 500, 100)}%` }}
+          animate={{ width: `${Math.min(Math.max(supplyPct, 0.5), 100)}%` }}  // Show real %, min 0.5% for visibility
           transition={{ duration: 3, ease: "easeOut" }}
         />
       </div>

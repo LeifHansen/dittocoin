@@ -32,7 +32,7 @@ async function main() {
   // ── 2. Deploy DittoVesting ────────────────────────────────
   console.log("\n[2/4] Deploying DittoVesting...");
   const DittoVesting = await ethers.getContractFactory("DittoVesting");
-  const vesting = await DittoVesting.deploy(DITTO_TOKEN, presaleAddress);
+  const vesting = await DittoVesting.deploy(DITTO_TOKEN);
   await vesting.waitForDeployment();
 
   const vestingAddress = await vesting.getAddress();
@@ -116,7 +116,7 @@ async function main() {
   console.log("\nNext steps:");
   console.log("  1. Verify contracts on Etherscan:");
   console.log(`     npx hardhat verify --network <network> ${presaleAddress} ${DITTO_TOKEN}`);
-  console.log(`     npx hardhat verify --network <network> ${vestingAddress} ${DITTO_TOKEN} ${presaleAddress}`);
+  console.log(`     npx hardhat verify --network <network> ${vestingAddress} ${DITTO_TOKEN}`);
   console.log("  2. Add whitelist addresses for Seed round: presale.setWhitelist([...], true)");
   console.log("  3. When ready, activate Seed round: presale.activateRound(0)");
   console.log("  4. After liquidity launch, set TGE: vesting.setTGE(timestamp)");
