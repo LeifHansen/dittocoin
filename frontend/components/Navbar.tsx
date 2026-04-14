@@ -22,10 +22,10 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative h-10 w-10 overflow-hidden rounded-full ring-2 ring-ditto-teal/30 group-hover:ring-ditto-teal/60 transition-all">
             <Image
-              src="/logo.png"
+              src="/mascot.svg"
               alt="DittoCoin"
               fill
-              className="object-cover"
+              className="object-contain scale-110"
               priority
             />
           </div>

@@ -1,0 +1,167 @@
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for the blob -->
+    <linearGradient id="blobGradientHero" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7b2fbe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a0a2e;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Glow effect -->
+    <filter id="glowHero">
+      <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Gold coin gradient -->
+    <radialGradient id="coinGradientHero">
+      <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffed4e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#daa520;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Shine effect for coin -->
+    <linearGradient id="coinShineHero" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.4" />
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.2" />
+    </linearGradient>
+
+    <!-- Sparkle filter -->
+    <filter id="sparkleGlow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Text gradient for "DITTO" -->
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1ac8b0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d64b8a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background glow -->
+  <circle cx="200" cy="200" r="250" fill="#1ac8b0" opacity="0.08" filter="url(#glowHero)"/>
+
+  <!-- Main blob body -->
+  <path d="M 200 80 C 280 80 340 120 360 180 C 380 240 360 300 320 340 C 280 380 160 380 120 340 C 80 300 60 240 80 180 C 100 120 140 80 200 80"
+        fill="url(#blobGradientHero)" filter="url(#glowHero)"/>
+
+  <!-- Left ear bump -->
+  <ellipse cx="100" cy="140" rx="45" ry="55" fill="url(#blobGradientHero)" opacity="0.9" filter="url(#glowHero)"/>
+
+  <!-- Right ear bump -->
+  <ellipse cx="300" cy="140" rx="45" ry="55" fill="url(#blobGradientHero)" opacity="0.9" filter="url(#glowHero)"/>
+
+  <!-- Teal accent highlight on blob -->
+  <ellipse cx="140" cy="150" rx="50" ry="60" fill="#1ac8b0" opacity="0.15"/>
+
+  <!-- Pink accent highlight on blob -->
+  <ellipse cx="280" cy="280" rx="45" ry="50" fill="#d64b8a" opacity="0.12"/>
+
+  <!-- Left eye white -->
+  <circle cx="160" cy="200" r="30" fill="#ffffff"/>
+
+  <!-- Right eye white -->
+  <circle cx="240" cy="200" r="30" fill="#ffffff"/>
+
+  <!-- Left eye pupil -->
+  <circle cx="166" cy="208" r="18" fill="#1a0a2e"/>
+
+  <!-- Right eye pupil -->
+  <circle cx="234" cy="208" r="18" fill="#1a0a2e"/>
+
+  <!-- Left eye shine -->
+  <circle cx="172" cy="200" r="8" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Right eye shine -->
+  <circle cx="240" cy="200" r="8" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Big happy mouth curve -->
+  <path d="M 180 260 Q 200 285 220 260"
+        stroke="#d64b8a" stroke-width="8" fill="none" stroke-linecap="round"/>
+
+  <!-- LEFT COINS GROUP -->
+  <!-- Back coin -->
+  <circle cx="80" cy="280" r="35" fill="url(#coinGradientHero)" filter="url(#glowHero)" opacity="0.7"/>
+  <circle cx="80" cy="280" r="35" fill="none" stroke="#daa520" stroke-width="1.5" opacity="0.3"/>
+
+  <!-- Center left coin -->
+  <circle cx="120" cy="310" r="40" fill="url(#coinGradientHero)" filter="url(#glowHero)"/>
+  <ellipse cx="110" cy="298" rx="30" ry="25" fill="url(#coinShineHero)"/>
+  <circle cx="120" cy="310" r="40" fill="none" stroke="#daa520" stroke-width="2" opacity="0.5"/>
+  <circle cx="120" cy="310" r="22" fill="none" stroke="#1a0a2e" stroke-width="2" opacity="0.6"/>
+
+  <!-- Front left coin -->
+  <circle cx="60" cy="340" r="38" fill="url(#coinGradientHero)" filter="url(#glowHero)"/>
+  <ellipse cx="52" cy="330" rx="28" ry="23" fill="url(#coinShineHero)"/>
+  <circle cx="60" cy="340" r="38" fill="none" stroke="#daa520" stroke-width="2" opacity="0.5"/>
+
+  <!-- RIGHT COINS GROUP -->
+  <!-- Back coin -->
+  <circle cx="380" cy="290" r="35" fill="url(#coinGradientHero)" filter="url(#glowHero)" opacity="0.7"/>
+  <circle cx="380" cy="290" r="35" fill="none" stroke="#daa520" stroke-width="1.5" opacity="0.3"/>
+
+  <!-- Center right coin -->
+  <circle cx="340" cy="320" r="40" fill="url(#coinGradientHero)" filter="url(#glowHero)"/>
+  <ellipse cx="350" cy="308" rx="30" ry="25" fill="url(#coinShineHero)"/>
+  <circle cx="340" cy="320" r="40" fill="none" stroke="#daa520" stroke-width="2" opacity="0.5"/>
+  <circle cx="340" cy="320" r="22" fill="none" stroke="#1a0a2e" stroke-width="2" opacity="0.6"/>
+
+  <!-- Front right coin -->
+  <circle cx="380" cy="350" r="38" fill="url(#coinGradientHero)" filter="url(#glowHero)"/>
+  <ellipse cx="388" cy="340" rx="28" ry="23" fill="url(#coinShineHero)"/>
+  <circle cx="380" cy="350" r="38" fill="none" stroke="#daa520" stroke-width="2" opacity="0.5"/>
+
+  <!-- CENTER BOTTOM COIN (larger) -->
+  <circle cx="200" cy="380" r="50" fill="url(#coinGradientHero)" filter="url(#glowHero)"/>
+  <ellipse cx="188" cy="364" rx="38" ry="32" fill="url(#coinShineHero)"/>
+  <circle cx="200" cy="380" r="50" fill="none" stroke="#daa520" stroke-width="2" opacity="0.6"/>
+  <circle cx="200" cy="380" r="28" fill="none" stroke="#1a0a2e" stroke-width="2.5" opacity="0.7"/>
+  <text x="200" y="393" font-family="Arial, sans-serif" font-size="42" font-weight="bold"
+        text-anchor="middle" fill="#1a0a2e">D</text>
+
+  <!-- Coin sparkles -->
+  <g opacity="0.8" filter="url(#sparkleGlow)">
+    <circle cx="50" cy="250" r="5" fill="#ffed4e"/>
+    <circle cx="140" cy="250" r="5" fill="#ffed4e"/>
+    <circle cx="280" cy="260" r="5" fill="#ffed4e"/>
+    <circle cx="400" cy="240" r="5" fill="#ffed4e"/>
+    <circle cx="30" cy="360" r="4" fill="#1ac8b0"/>
+    <circle cx="420" cy="370" r="4" fill="#d64b8a"/>
+  </g>
+
+  <!-- Decorative sparkles -->
+  <g opacity="0.6" filter="url(#sparkleGlow)">
+    <circle cx="100" cy="80" r="4" fill="#1ac8b0"/>
+    <circle cx="300" cy="60" r="3" fill="#d64b8a"/>
+    <circle cx="420" cy="150" r="3.5" fill="#1ac8b0"/>
+    <circle cx="60" cy="150" r="3" fill="#d64b8a"/>
+  </g>
+
+  <!-- "DITTO" text -->
+  <text x="520" y="140" font-family="Arial, sans-serif" font-size="96" font-weight="900"
+        fill="url(#textGradient)" letter-spacing="8">DITTO</text>
+
+  <!-- Subtitle text -->
+  <text x="520" y="190" font-family="Arial, sans-serif" font-size="24" font-weight="300"
+        fill="#1ac8b0" opacity="0.9" letter-spacing="2">CRYPTO</text>
+
+  <!-- Decorative line under text -->
+  <line x1="520" y1="210" x2="760" y2="210" stroke="#d64b8a" stroke-width="3" opacity="0.6"/>
+
+  <!-- Small tagline -->
+  <text x="520" y="250" font-family="Arial, sans-serif" font-size="16" font-weight="500"
+        fill="#ffffff" opacity="0.8">The friendly blob blockchain</text>
+
+  <!-- Glow orbs around title -->
+  <circle cx="480" cy="100" r="8" fill="#1ac8b0" opacity="0.4" filter="url(#sparkleGlow)"/>
+  <circle cx="770" cy="120" r="6" fill="#d64b8a" opacity="0.3" filter="url(#sparkleGlow)"/>
+  <circle cx="480" cy="280" r="7" fill="#d64b8a" opacity="0.35" filter="url(#sparkleGlow)"/>
+  <circle cx="760" cy="300" r="5" fill="#1ac8b0" opacity="0.4" filter="url(#sparkleGlow)"/>
+</svg>

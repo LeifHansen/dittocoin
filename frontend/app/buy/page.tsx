@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useAccount, useBalance } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -32,6 +33,9 @@ export default function BuyPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
+          <div className="relative mx-auto h-20 w-20 mb-4 animate-float">
+            <Image src="/mascot.svg" alt="DittoCoin" fill className="object-contain" />
+          </div>
           <h1 className="font-display text-4xl font-bold mb-3">
             Buy <span className="text-ditto-teal">$DITTO</span>
           </h1>

@@ -49,12 +49,12 @@ export default function HomePage() {
 
         <div className="mx-auto max-w-5xl text-center relative z-10">
           <motion.div {...fadeUp()} className="mb-8">
-            <div className="relative mx-auto h-32 w-32 animate-float">
+            <div className="relative mx-auto h-40 w-40 md:h-48 md:w-48 animate-float">
               <Image
-                src="/logo.png"
+                src="/mascot.svg"
                 alt="DittoCoin mascot"
                 fill
-                className="object-contain drop-shadow-[0_0_30px_rgba(26,200,176,0.3)]"
+                className="object-contain drop-shadow-[0_0_40px_rgba(123,47,190,0.4)]"
                 priority
               />
             </div>

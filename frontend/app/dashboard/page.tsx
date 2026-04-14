@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   useAccount,
@@ -216,13 +217,18 @@ export default function DashboardPage() {
   return (
     <div className="px-6 py-16">
       <div className="mx-auto max-w-4xl">
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-display text-4xl font-bold mb-10"
+          className="flex items-center gap-4 mb-10"
         >
-          Your <span className="text-ditto-teal">Dashboard</span>
-        </motion.h1>
+          <div className="relative h-16 w-16 animate-float shrink-0">
+            <Image src="/mascot-burn.svg" alt="DittoCoin burn" fill className="object-contain" />
+          </div>
+          <h1 className="font-display text-4xl font-bold">
+            Your <span className="text-ditto-teal">Dashboard</span>
+          </h1>
+        </motion.div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">

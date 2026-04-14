@@ -1,0 +1,136 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for the blob -->
+    <linearGradient id="blobGradientBurn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7b2fbe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a0a2e;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Glow effect -->
+    <filter id="glowBurn">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Flame gradient (orange to red) -->
+    <linearGradient id="flameGradient" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ff4500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffaa00;stop-opacity:0.8" />
+    </linearGradient>
+
+    <!-- Bright flame glow -->
+    <filter id="flameGlow">
+      <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Gold coin gradient -->
+    <radialGradient id="coinGradientBurn">
+      <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffed4e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#daa520;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Shine effect for coin -->
+    <linearGradient id="coinShineBurn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.4" />
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background glow with warm tones -->
+  <circle cx="256" cy="256" r="200" fill="#ff6b35" opacity="0.06" filter="url(#flameGlow)"/>
+
+  <!-- Left flame (back) -->
+  <path d="M 80 300 Q 60 250 80 180 Q 100 220 120 280 Q 110 310 80 300"
+        fill="url(#flameGradient)" filter="url(#flameGlow)" opacity="0.7"/>
+
+  <!-- Left-center flame -->
+  <path d="M 120 320 Q 100 260 130 150 Q 155 230 160 310 Q 145 335 120 320"
+        fill="url(#flameGradient)" filter="url(#flameGlow)" opacity="0.8"/>
+
+  <!-- Right-center flame -->
+  <path d="M 380 310 Q 400 250 370 140 Q 355 230 350 310 Q 365 335 380 310"
+        fill="url(#flameGradient)" filter="url(#flameGlow)" opacity="0.8"/>
+
+  <!-- Right flame (back) -->
+  <path d="M 430 290 Q 450 240 440 170 Q 420 220 400 280 Q 410 315 430 290"
+        fill="url(#flameGradient)" filter="url(#flameGlow)" opacity="0.7"/>
+
+  <!-- Top center flame (tallest) -->
+  <path d="M 240 160 Q 220 80 256 20 Q 280 90 280 160 Q 270 180 240 160"
+        fill="url(#flameGradient)" filter="url(#flameGlow)" opacity="0.9"/>
+
+  <!-- Main blob body -->
+  <path d="M 256 200 C 320 200 360 240 370 300 C 380 360 360 400 320 420 C 280 440 200 440 160 420 C 120 400 100 360 110 300 C 120 240 200 200 256 200"
+        fill="url(#blobGradientBurn)" filter="url(#glowBurn)"/>
+
+  <!-- Left ear bump -->
+  <ellipse cx="160" cy="260" rx="35" ry="45" fill="url(#blobGradientBurn)" opacity="0.9" filter="url(#glowBurn)"/>
+
+  <!-- Right ear bump -->
+  <ellipse cx="352" cy="260" rx="35" ry="45" fill="url(#blobGradientBurn)" opacity="0.9" filter="url(#glowBurn)"/>
+
+  <!-- Teal accent highlight on blob -->
+  <ellipse cx="200" cy="270" rx="40" ry="50" fill="#1ac8b0" opacity="0.15"/>
+
+  <!-- Pink accent highlight on blob -->
+  <ellipse cx="320" cy="380" rx="35" ry="40" fill="#d64b8a" opacity="0.12"/>
+
+  <!-- Left eye white -->
+  <circle cx="200" cy="300" r="25" fill="#ffffff"/>
+
+  <!-- Right eye white -->
+  <circle cx="312" cy="300" r="25" fill="#ffffff"/>
+
+  <!-- Left eye pupil -->
+  <circle cx="205" cy="305" r="15" fill="#1a0a2e"/>
+
+  <!-- Right eye pupil -->
+  <circle cx="307" cy="305" r="15" fill="#1a0a2e"/>
+
+  <!-- Left eye shine -->
+  <circle cx="210" cy="300" r="6" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Right eye shine -->
+  <circle cx="312" cy="300" r="6" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Intense excited mouth (O shape) -->
+  <circle cx="256" cy="360" r="18" fill="none" stroke="#d64b8a" stroke-width="6"/>
+
+  <!-- Flame sparkles/embers around blob -->
+  <g opacity="0.9" filter="url(#flameGlow)">
+    <circle cx="100" cy="200" r="6" fill="#ffaa00"/>
+    <circle cx="420" cy="210" r="6" fill="#ffaa00"/>
+    <circle cx="150" cy="380" r="5" fill="#ff6b35"/>
+    <circle cx="380" cy="390" r="5" fill="#ff6b35"/>
+    <circle cx="200" cy="120" r="4" fill="#ffdd00"/>
+    <circle cx="320" cy="130" r="4" fill="#ffdd00"/>
+  </g>
+
+  <!-- Coin - main circle (lower, partially obscured by flames) -->
+  <circle cx="256" cy="450" r="45" fill="url(#coinGradientBurn)" filter="url(#glowBurn)" opacity="0.85"/>
+
+  <!-- Coin shine overlay -->
+  <ellipse cx="248" cy="442" rx="35" ry="30" fill="url(#coinShineBurn)"/>
+
+  <!-- Coin border -->
+  <circle cx="256" cy="450" r="45" fill="none" stroke="#daa520" stroke-width="2" opacity="0.5"/>
+
+  <!-- Coin center details (D for DittoCoin) -->
+  <circle cx="256" cy="450" r="24" fill="none" stroke="#1a0a2e" stroke-width="2" opacity="0.6"/>
+  <text x="256" y="460" font-family="Arial, sans-serif" font-size="28" font-weight="bold"
+        text-anchor="middle" fill="#1a0a2e" opacity="0.7">D</text>
+
+  <!-- "BURN" text indicator (subtle) -->
+  <text x="170" y="490" font-family="Arial, sans-serif" font-size="18" font-weight="bold"
+        fill="#ff6b35" opacity="0.7">BURN</text>
+</svg>

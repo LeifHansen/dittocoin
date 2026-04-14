@@ -1,0 +1,101 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for the blob -->
+    <linearGradient id="blobGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7b2fbe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a0a2e;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Gold coin gradient -->
+    <radialGradient id="coinGradient">
+      <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffed4e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#daa520;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Shine effect for coin -->
+    <linearGradient id="coinShine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.4" />
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background glow -->
+  <circle cx="256" cy="256" r="200" fill="#1ac8b0" opacity="0.1" filter="url(#glow)"/>
+
+  <!-- Main blob body -->
+  <path d="M 256 80 C 320 80 360 120 370 180 C 380 240 360 300 320 340 C 280 380 200 380 160 340 C 120 300 100 240 110 180 C 120 120 200 80 256 80"
+        fill="url(#blobGradient)" filter="url(#glow)"/>
+
+  <!-- Left ear bump -->
+  <ellipse cx="160" cy="140" rx="35" ry="45" fill="url(#blobGradient)" opacity="0.9" filter="url(#glow)"/>
+
+  <!-- Right ear bump -->
+  <ellipse cx="352" cy="140" rx="35" ry="45" fill="url(#blobGradient)" opacity="0.9" filter="url(#glow)"/>
+
+  <!-- Teal accent highlight on blob -->
+  <ellipse cx="200" cy="150" rx="40" ry="50" fill="#1ac8b0" opacity="0.15"/>
+
+  <!-- Pink accent highlight on blob -->
+  <ellipse cx="320" cy="280" rx="35" ry="40" fill="#d64b8a" opacity="0.12"/>
+
+  <!-- Left eye white -->
+  <circle cx="200" cy="220" r="25" fill="#ffffff"/>
+
+  <!-- Right eye white -->
+  <circle cx="312" cy="220" r="25" fill="#ffffff"/>
+
+  <!-- Left eye pupil -->
+  <circle cx="205" cy="225" r="15" fill="#1a0a2e"/>
+
+  <!-- Right eye pupil -->
+  <circle cx="307" cy="225" r="15" fill="#1a0a2e"/>
+
+  <!-- Left eye shine -->
+  <circle cx="210" cy="220" r="6" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Right eye shine -->
+  <circle cx="312" cy="220" r="6" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Mouth curve (smile) -->
+  <path d="M 240 290 Q 256 310 272 290"
+        stroke="#d64b8a" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+  <!-- Coin - main circle -->
+  <circle cx="400" cy="180" r="50" fill="url(#coinGradient)" filter="url(#glow)"/>
+
+  <!-- Coin shine overlay -->
+  <ellipse cx="390" cy="170" rx="40" ry="35" fill="url(#coinShine)"/>
+
+  <!-- Coin border -->
+  <circle cx="400" cy="180" r="50" fill="none" stroke="#daa520" stroke-width="2" opacity="0.6"/>
+
+  <!-- Coin center details (D for DittoCoin) -->
+  <circle cx="400" cy="180" r="28" fill="none" stroke="#1a0a2e" stroke-width="3"/>
+  <text x="400" y="192" font-family="Arial, sans-serif" font-size="36" font-weight="bold"
+        text-anchor="middle" fill="#1a0a2e">D</text>
+
+  <!-- Coin sparkles -->
+  <circle cx="365" cy="150" r="4" fill="#ffed4e" opacity="0.8"/>
+  <circle cx="435" cy="150" r="4" fill="#ffed4e" opacity="0.8"/>
+  <circle cx="365" cy="210" r="3" fill="#ffed4e" opacity="0.6"/>
+  <circle cx="435" cy="210" r="3" fill="#ffed4e" opacity="0.6"/>
+
+  <!-- Decorative sparkles around mascot -->
+  <g opacity="0.6">
+    <circle cx="120" cy="120" r="3" fill="#1ac8b0"/>
+    <circle cx="380" cy="80" r="2" fill="#d64b8a"/>
+    <circle cx="420" cy="320" r="2.5" fill="#1ac8b0"/>
+    <circle cx="140" cy="340" r="2" fill="#d64b8a"/>
+  </g>
+</svg>

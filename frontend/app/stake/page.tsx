@@ -10,6 +10,7 @@ import {
 } from "wagmi";
 import { parseEther, formatEther } from "viem";
 import { useEffect } from "react";
+import Image from "next/image";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CONTRACTS, STAKING_TIERS } from "@/lib/contracts";
 import DittoCoinABI from "@/abi/DittoCoin.json";
@@ -113,6 +114,9 @@ export default function StakePage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
+          <div className="relative mx-auto h-24 w-24 mb-4 animate-float">
+            <Image src="/mascot-staking.svg" alt="DittoCoin staking" fill className="object-contain" />
+          </div>
           <h1 className="font-display text-4xl font-bold mb-3">
             Stake Your <span className="text-ditto-teal">DITTO</span>
           </h1>
