@@ -293,7 +293,7 @@ describe("DittoVault", function () {
     it("should reject unsupported asset", async function () {
       await expect(
         vault.getUSDValue(depositor1.address, 1000)
-      ).to.be.revertedWith("Asset not supported");
+      ).to.be.revertedWith("Asset not configured");
     });
   });
 

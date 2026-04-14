@@ -29,3 +29,7 @@ Thumbs.db
 
 # Misc
 *.log
+
+# Local hardhat test deployments
+deployments/hardhat.json
+deployments/localhost.json
